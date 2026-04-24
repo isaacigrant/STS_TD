@@ -3,11 +3,11 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [Header("Pathing")]
-    [SerializeField] private Path _currentPath;
     [SerializeField] private int _currentWaypointIndex;
+    private Path _currentPath;
 
-    [Header("Enemy Stats")]
-    [SerializeField] private float _moveSpeed = 3f;
+    [Header("Enemy Data")]
+    [SerializeField] private EnemyData _enemyData;
 
     private Vector3 _targetPosition;
 
@@ -25,7 +25,7 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _moveSpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _enemyData.EnemySpeed * Time.deltaTime);
 
         CheckDistanceToTarget();
     }
@@ -51,4 +51,11 @@ public class Enemy : MonoBehaviour
             }
         }
     }
+}
+
+public enum EnemyType
+{
+    Slime,
+    Rat,
+    Ooze
 }

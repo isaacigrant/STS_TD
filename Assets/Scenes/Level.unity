@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 105622661}
   - component: {fileID: 105622662}
   m_Layer: 0
-  m_Name: Enemy Pool
+  m_Name: Slime Pool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -144,12 +144,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 105622660}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.15, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 7.85, y: -2.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 336430416}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &105622662
 MonoBehaviour:
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e456a4e22363b06409a3f0e45a6a3655, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
-  _poolerPrefab: {fileID: 2907544394673798703, guid: 9be4b29528f538d4c822efc7e9f35287, type: 3}
+  _objectPrefab: {fileID: 2907544394673798703, guid: 9be4b29528f538d4c822efc7e9f35287, type: 3}
   _poolSize: 10
 --- !u!1 &133517076
 GameObject:
@@ -842,8 +842,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62807cbf23521864ea8d1f735ef32ab8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Spawner
-  _objectPool: {fileID: 105622662}
-  _spawnEnemiesInterval: 1.5
+  _waves:
+  - {fileID: 11400000, guid: c381a04def2e7c74b99f0c720c28b177, type: 2}
+  - {fileID: 11400000, guid: 34b5c04c5a1d84342878cb4cc48e090e, type: 2}
+  _slimePool: {fileID: 105622662}
+  _ratPool: {fileID: 1516830170}
+  _oozePool: {fileID: 1159294510}
 --- !u!4 &336430416
 Transform:
   m_ObjectHideFlags: 0
@@ -856,7 +860,10 @@ Transform:
   m_LocalPosition: {x: -8, y: 2.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 105622661}
+  - {fileID: 1516830171}
+  - {fileID: 1159294511}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &336430417
@@ -1613,6 +1620,52 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6293368536658072193, guid: 2f84dcc2fea4e5b4a93915940534638c, type: 3}
   m_PrefabInstance: {fileID: 1104564888}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1159294509
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1159294511}
+  - component: {fileID: 1159294510}
+  m_Layer: 0
+  m_Name: Ooze Pool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1159294510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1159294509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e456a4e22363b06409a3f0e45a6a3655, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
+  _objectPrefab: {fileID: 2907544394673798703, guid: 7d708611ffd5c884a85a2fb1c254a354, type: 3}
+  _poolSize: 5
+--- !u!4 &1159294511
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1159294509}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 7.85, y: -2.65, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 336430416}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1471801922
 GameObject:
   m_ObjectHideFlags: 0
@@ -4226,6 +4279,52 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6293368536658072193, guid: 2f84dcc2fea4e5b4a93915940534638c, type: 3}
   m_PrefabInstance: {fileID: 1475529844}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1516830169
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1516830171}
+  - component: {fileID: 1516830170}
+  m_Layer: 0
+  m_Name: Rat Pool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1516830170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516830169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e456a4e22363b06409a3f0e45a6a3655, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
+  _objectPrefab: {fileID: 2907544394673798703, guid: 5141f73f0f5ebbd47a810cafc5d61292, type: 3}
+  _poolSize: 10
+--- !u!4 &1516830171
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516830169}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 7.85, y: -2.65, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 336430416}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1581414493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6443,4 +6542,3 @@ SceneRoots:
   - {fileID: 133517078}
   - {fileID: 691069403}
   - {fileID: 336430416}
-  - {fileID: 105622661}

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class ObjectPooler : MonoBehaviour
 {
-    [SerializeField] private GameObject _poolerPrefab;
+    [SerializeField] private GameObject _objectPrefab;
     [SerializeField] private int _poolSize;
 
     private List<GameObject> _poolList;
@@ -38,7 +38,7 @@ public class ObjectPooler : MonoBehaviour
     /// <summary>Instantiate's a new object, deactivates it, adds it to the pool list and then returns the new object.</summary>
     private GameObject CreateNewObject()
     {
-        GameObject obj = Instantiate(_poolerPrefab, transform);
+        GameObject obj = Instantiate(_objectPrefab, transform);
         obj.SetActive(false);
         _poolList.Add(obj);
         return obj;
