@@ -19,6 +19,7 @@ public class Enemy : MonoBehaviour
     private void OnEnable()
     {
         _currentWaypointIndex = 0;
+
         _targetPosition = _currentPath.GetWaypointPositionFromIndex(_currentWaypointIndex);
     }
 
@@ -26,6 +27,15 @@ public class Enemy : MonoBehaviour
     {
         transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _moveSpeed * Time.deltaTime);
 
+        CheckDistanceToTarget();
+    }
+
+    /// <summary>
+    /// <para>Checks if Enemy is close enough to target, then if able moves to the next waypoint or else deactivates.</para>
+    /// <see cref="Path.GetWaypointPositionFromIndex(int)"/>
+    /// </summary>
+    private void CheckDistanceToTarget()
+    {
         float distanceMagnitude = (transform.position - _targetPosition).magnitude;
 
         if (distanceMagnitude < 0.1f)
