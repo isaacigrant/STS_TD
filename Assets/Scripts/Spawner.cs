@@ -13,32 +13,63 @@ public class Spawner : MonoBehaviour
 
     private Dictionary<EnemyType, ObjectPooler> _enemyToPoolDictionary;
     private WaveData _currentWaveData => _waves[_currentWaveIndex];
-    private int _currentWaveIndex = 0;
-    private int _enemySpawnCounter = 0;
     private float _spawnTimer;
+    private float _waveCooldown;
+    private int _currentWaveIndex = 0;
+    private int _enemyDestroyedCounter = 0;
+    private int _enemySpawnCounter = 0;
+    private bool _isBetweenRounds;
+    private bool _isBetweenWaves;
 
     private void Awake()
     {
-        _enemyToPoolDictionary = new Dictionary<EnemyType, ObjectPooler>() {
+        _enemyToPoolDictionary = new Dictionary<EnemyType, ObjectPooler>()
+        {
             { EnemyType.Slime, _slimePool },
             { EnemyType.Rat, _ratPool },
             { EnemyType.Ooze, _oozePool }
         };
     }
 
+    private void OnEnable()
+    {
+        Enemy.OnEnemyReachedEnd += HandleOnEnemyReachedEnd;
+    }
+
+    private void OnDisable()
+    {
+        Enemy.OnEnemyReachedEnd -= HandleOnEnemyReachedEnd;
+    }
+
     private void Update()
     {
-        _spawnTimer -= Time.deltaTime;
+        if (_isBetweenWaves)
+        {
+            _waveCooldown -= Time.deltaTime;
 
-        if (_spawnTimer <= 0 && _enemySpawnCounter < _currentWaveData.EnemiesPerWave)
-        {
-            _spawnTimer = _currentWaveData.SpawnInterval;
-            SpawnObject();
+            if (_waveCooldown <= 0)
+            {
+                _currentWaveIndex = (_currentWaveIndex + 1) % _waves.Length;
+                _enemySpawnCounter = 0;
+                _enemyDestroyedCounter = 0;
+                _spawnTimer = _currentWaveData.SpawnInterval;
+                _isBetweenWaves = false;
+            }
         }
-        else if (_enemySpawnCounter >= _currentWaveData.EnemiesPerWave)
+        else
         {
-            _currentWaveIndex = (_currentWaveIndex + 1) % _waves.Length;
-            _enemySpawnCounter = 0;
+            _spawnTimer -= Time.deltaTime;
+
+            if (_spawnTimer <= 0 && _enemySpawnCounter < _currentWaveData.EnemiesPerWave)
+            {
+                _spawnTimer = _currentWaveData.SpawnInterval;
+                SpawnObject();
+            }
+            else if (_enemySpawnCounter >= _currentWaveData.EnemiesPerWave && _enemyDestroyedCounter >= _currentWaveData.EnemiesPerWave)
+            {
+                _isBetweenWaves = true;
+                _waveCooldown = _currentWaveData.TimeUntilNextWave;
+            }
         }
     }
 
@@ -55,5 +86,13 @@ public class Spawner : MonoBehaviour
             spawnedObject.SetActive(true);
             _enemySpawnCounter++;
         }
+    }
+
+    /// <summary>
+    /// <para>Increases enemy destroyed counter when any enemy reaches the end.</para>
+    /// </summary>
+    private void HandleOnEnemyReachedEnd(EnemyData data)
+    {
+        _enemyDestroyedCounter++;
     }
 }

@@ -1,7 +1,10 @@
 using UnityEngine;
+using System;
 
 public class Enemy : MonoBehaviour
 {
+    public static event Action<EnemyData> OnEnemyReachedEnd;
+
     [Header("Pathing")]
     [SerializeField] private int _currentWaypointIndex;
     private Path _currentPath;
@@ -32,7 +35,8 @@ public class Enemy : MonoBehaviour
 
     /// <summary>
     /// <para>Checks if Enemy is close enough to target, then if able moves to the next waypoint or else deactivates.</para>
-    /// <see cref="Path.GetWaypointPositionFromIndex(int)"/>
+    /// <para><see cref="Path.GetWaypointPositionFromIndex(int)"/></para>
+    /// <para><see cref="OnEnemyReachedEnd"/></para>
     /// </summary>
     private void CheckDistanceToTarget()
     {
@@ -47,6 +51,7 @@ public class Enemy : MonoBehaviour
             }
             else
             {
+                OnEnemyReachedEnd?.Invoke(_enemyData);
                 gameObject.SetActive(false);
             }
         }
