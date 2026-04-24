@@ -4,7 +4,7 @@ public class Path : MonoBehaviour
 {
     public Transform[] Waypoints;
 
-    public Vector3 GetPositionFromIndex(int index)
+    public Vector3 GetWaypointPositionFromIndex(int index)
     {
         return Waypoints[index].position;
     }

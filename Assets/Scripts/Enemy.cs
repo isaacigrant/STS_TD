@@ -3,37 +3,37 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [Header("Pathing")]
-    [SerializeField] private Path m_CurrentPath;
-    [SerializeField] private int m_CurrentWaypointIndex;
+    [SerializeField] private Path _currentPath;
+    [SerializeField] private int _currentWaypointIndex;
 
     [Header("Enemy Stats")]
-    [SerializeField] private float m_MoveSpeed = 3f;
+    [SerializeField] private float _moveSpeed = 3f;
 
-    private Vector3 m_TargetPosition;
+    private Vector3 _targetPosition;
 
     private void Awake()
     {
-        m_CurrentPath = GameObject.Find("Path 1").GetComponent<Path>();
+        _currentPath = GameObject.Find("Path 1").GetComponent<Path>();
     }
 
     private void OnEnable()
     {
-        m_CurrentWaypointIndex = 0;
-        m_TargetPosition = m_CurrentPath.GetPositionFromIndex(m_CurrentWaypointIndex);
+        _currentWaypointIndex = 0;
+        _targetPosition = _currentPath.GetWaypointPositionFromIndex(_currentWaypointIndex);
     }
 
     private void Update()
     {
-        transform.position = Vector3.MoveTowards(transform.position, m_TargetPosition, m_MoveSpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _moveSpeed * Time.deltaTime);
 
-        float distanceMagnitude = (transform.position - m_TargetPosition).magnitude;
+        float distanceMagnitude = (transform.position - _targetPosition).magnitude;
 
         if (distanceMagnitude < 0.1f)
         {
-            if (m_CurrentWaypointIndex < m_CurrentPath.Waypoints.Length - 1)
+            if (_currentWaypointIndex < _currentPath.Waypoints.Length - 1)
             {
-                m_CurrentWaypointIndex++;
-                m_TargetPosition = m_CurrentPath.GetPositionFromIndex(m_CurrentWaypointIndex);
+                _currentWaypointIndex++;
+                _targetPosition = _currentPath.GetWaypointPositionFromIndex(_currentWaypointIndex);
             }
             else
             {
