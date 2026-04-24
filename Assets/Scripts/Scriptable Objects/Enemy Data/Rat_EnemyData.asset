@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   EnemyDamage: 1
   EnemyHealth: 2
-  EnemySpeed: 4.5
+  EnemySpeed: 10
