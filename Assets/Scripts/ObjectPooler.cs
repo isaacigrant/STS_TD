@@ -8,6 +8,10 @@ public class ObjectPooler : MonoBehaviour
 
     private List<GameObject> _poolList;
 
+    /// <summary>
+    /// <para>Checks each object in the Pool List, if one is inactive return that object. Else create a new object and use it.</para>
+    /// <see cref="CreateNewObject"/>
+    /// </summary>
     public GameObject GetObjectInPool()
     {
         foreach (GameObject obj in _poolList)
@@ -31,6 +35,7 @@ public class ObjectPooler : MonoBehaviour
         }
     }
 
+    /// <summary>Instantiate's a new object, deactivates it, adds it to the pool list and then returns the new object.</summary>
     private GameObject CreateNewObject()
     {
         GameObject obj = Instantiate(_poolerPrefab, transform);

@@ -4,6 +4,8 @@ public class Path : MonoBehaviour
 {
     public Transform[] Waypoints;
 
+    /// <param name="index"></param>
+    /// <returns>The transform.position of that Path's index.</returns>
     public Vector3 GetWaypointPositionFromIndex(int index)
     {
         return Waypoints[index].position;

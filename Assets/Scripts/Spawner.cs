@@ -18,6 +18,10 @@ public class Spawner : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// <para>Gets a object from its object pool, spawns the object at this transform.position and sets the object to active.</para>
+    /// <see cref="ObjectPooler.GetObjectInPool"/>
+    /// </summary>
     private void SpawnEnemy()
     {
         GameObject spawnedEnemy = _objectPool.GetObjectInPool();
