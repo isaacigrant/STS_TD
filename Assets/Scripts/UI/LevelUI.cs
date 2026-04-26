@@ -13,6 +13,7 @@ public class LevelUI : MonoBehaviour
 
     [Header("Text")]
     [SerializeField] private TMP_Text _roundNumber;
+    [SerializeField] private TMP_Text _healthNumber;
 
     public void StartRound()
     {
@@ -32,15 +33,21 @@ public class LevelUI : MonoBehaviour
     private void OnEnable()
     {
         Spawner.OnRoundChanged += UpdateRoundNumberText;
+        GameManager.OnLivesChanged += UpdateHealthText;
     }
 
     private void OnDisable()
     {
         Spawner.OnRoundChanged -= UpdateRoundNumberText;
+        GameManager.OnLivesChanged -= UpdateHealthText;
     }
 
     private void UpdateRoundNumberText(int roundNum)
     {
         _roundNumber.text = $"Round: {roundNum + 1}";
+    }
+    private void UpdateHealthText(int healthNum)
+    {
+        _healthNumber.text = $"Health: {healthNum}";
     }
 }
