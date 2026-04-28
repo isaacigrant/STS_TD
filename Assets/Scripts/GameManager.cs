@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
 
     private void HandleOnEnemyReachedEnd(EnemyData data)
     {
-        _playerHealth = Mathf.Clamp(_playerHealth - data.EnemyDamage, 0, 100);
+        _playerHealth = Mathf.Max(_playerHealth - data.EnemyDamage, 0);
         OnLivesChanged?.Invoke(_playerHealth);
     }
 }

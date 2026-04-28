@@ -45,7 +45,7 @@ public class Tower : MonoBehaviour
 
         _towerCollider.size = new Vector2(_towerData.TowerRange, _towerData.TowerRange);
         _enemiesInRange = new List<Enemy>();
-        _shotTimer = _towerData.TowerAttackSpeed;
+        _shotTimer = 0;
     }
 
     private void ShootTowerProjectile()
@@ -64,7 +64,7 @@ public class Tower : MonoBehaviour
     {
         _shotTimer -= Time.deltaTime;
 
-        if (_shotTimer <= 0)
+        if (_shotTimer <= 0 && _enemiesInRange.Count > 0)
         {
             _shotTimer = _towerData.TowerAttackSpeed;
             ShootTowerProjectile();

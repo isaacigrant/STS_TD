@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerData
   TowerAttackSpeed: 1
   TowerDamage: 1
-  TowerProjectileSpeed: 4
+  TowerProjectileSpeed: 20
   TowerRange: 5

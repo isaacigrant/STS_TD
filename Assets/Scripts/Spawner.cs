@@ -39,12 +39,14 @@ public class Spawner : MonoBehaviour
     private void OnEnable()
     {
         Enemy.OnEnemyReachedEnd += HandleOnEnemyReachedEnd;
+        Enemy.OnEnemyDestroyed += HandleOnEnemyDestroyed;
         LevelUI.OnRoundStarted += HandleOnRoundStarted;
     }
 
     private void OnDisable()
     {
         Enemy.OnEnemyReachedEnd -= HandleOnEnemyReachedEnd;
+        Enemy.OnEnemyDestroyed -= HandleOnEnemyDestroyed;
         LevelUI.OnRoundStarted -= HandleOnRoundStarted;
     }
 
@@ -88,6 +90,11 @@ public class Spawner : MonoBehaviour
 
         if (_currentWaveIndex > _currentRoundData.Waves.Length - 1)
             AdvanceRound();
+    }
+
+    private void HandleOnEnemyDestroyed(Enemy enemy)
+    {
+        _enemyDestroyedCounter++;
     }
 
     /// <summary>
