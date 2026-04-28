@@ -1604,9 +1604,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 791071587}
-  - component: {fileID: 791071586}
-  - component: {fileID: 791071589}
+  - component: {fileID: 791071590}
   - component: {fileID: 791071588}
+  - component: {fileID: 791071589}
+  - component: {fileID: 791071586}
   m_Layer: 0
   m_Name: FastTower
   m_TagString: Untagged
@@ -1747,6 +1748,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 5, y: 5}
   m_EdgeRadius: 0
+--- !u!114 &791071590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791071585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e456a4e22363b06409a3f0e45a6a3655, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
+  _objectPrefab: {fileID: 5784661747208336385, guid: 9c2830d9fb8a34c488dff5320e1c12aa, type: 3}
+  _poolSize: 2
 --- !u!1 &934897485
 GameObject:
   m_ObjectHideFlags: 0
@@ -1756,10 +1771,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 934897490}
+  - component: {fileID: 934897486}
   - component: {fileID: 934897489}
   - component: {fileID: 934897488}
   - component: {fileID: 934897487}
-  - component: {fileID: 934897486}
   m_Layer: 5
   m_Name: UICanvas
   m_TagString: Untagged
@@ -7477,11 +7492,11 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1551449070}
   - {fileID: 510875103}
   - {fileID: 133517078}
   - {fileID: 691069403}
   - {fileID: 336430416}
   - {fileID: 934897490}
   - {fileID: 506221558}
-  - {fileID: 1551449070}
   - {fileID: 791071587}

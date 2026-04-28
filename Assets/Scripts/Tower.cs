@@ -7,14 +7,8 @@ public class Tower : MonoBehaviour
 
     private List<Enemy> _enemiesInRange;
     private BoxCollider2D _towerCollider;
-
-    private void Start()
-    {
-        _towerCollider = GetComponent<BoxCollider2D>();
-
-        _towerCollider.size = new Vector2(_towerData.TowerRange, _towerData.TowerRange);
-        _enemiesInRange = new List<Enemy>();
-    }
+    private ObjectPooler _projectilePool;
+    private float _shotTimer;
 
     private void OnDrawGizmosSelected()
     {
@@ -41,6 +35,39 @@ public class Tower : MonoBehaviour
             {
                 _enemiesInRange.Remove(enemy);
             }
+        }
+    }
+
+    private void Start()
+    {
+        _projectilePool = GetComponent<ObjectPooler>();
+        _towerCollider = GetComponent<BoxCollider2D>();
+
+        _towerCollider.size = new Vector2(_towerData.TowerRange, _towerData.TowerRange);
+        _enemiesInRange = new List<Enemy>();
+        _shotTimer = _towerData.TowerAttackSpeed;
+    }
+
+    private void ShootTowerProjectile()
+    {
+        if (_enemiesInRange.Count > 0)
+        {
+            GameObject proj = _projectilePool.GetObjectInPool();
+            proj.transform.position = transform.position;
+            proj.SetActive(true);
+            Vector2 projectileDirection = (_enemiesInRange[0].transform.position - transform.position).normalized;
+            proj.GetComponent<Projectile>().ShootProjectile(_towerData, projectileDirection);
+        }
+    }
+
+    private void Update()
+    {
+        _shotTimer -= Time.deltaTime;
+
+        if (_shotTimer <= 0)
+        {
+            _shotTimer = _towerData.TowerAttackSpeed;
+            ShootTowerProjectile();
         }
     }
 }
