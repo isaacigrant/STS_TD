@@ -1,29 +1,56 @@
 using System;
 using UnityEngine;
 
+/// <summary>
+/// Tracks player health and broadcasts changes so UI and other systems can react.
+/// Subscribes to <see cref="Enemy.OnEnemyReachedEnd"/> to apply damage when enemies breach the defenses.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
-    public static event Action<int> OnLivesChanged;
+    /// <summary>
+    /// Fired whenever player health changes. Passes the new health value as an int.
+    /// </summary>
+    public static event Action<int> OnHealthChanged;
 
-    private int _playerHealth = 100;
+    [Header("Player Health")]
+    [Tooltip("Starting health value. Decreases each time an enemy reaches the end.")]
+    [SerializeField] private int _maxHealth = 100;
+    private int _currentHealth;
 
     private void OnEnable()
     {
-        Enemy.OnEnemyReachedEnd += HandleOnEnemyReachedEnd;
+        Enemy.OnEnemyReachedEnd += HandleEnemyReachedEnd;
     }
     private void OnDisable()
     {
-        Enemy.OnEnemyReachedEnd -= HandleOnEnemyReachedEnd;
+        Enemy.OnEnemyReachedEnd -= HandleEnemyReachedEnd;
     }
 
     private void Start()
     {
-        OnLivesChanged?.Invoke(_playerHealth);
+        _currentHealth = _maxHealth;
+        OnHealthChanged?.Invoke(_currentHealth);
     }
 
-    private void HandleOnEnemyReachedEnd(EnemyData data)
+    /// <summary>
+    /// Called when an <see cref="Enemy"/> reaches the end of the path.
+    /// Reduces health by the enemy's damage value, clamped at zero.
+    /// </summary>
+    private void HandleEnemyReachedEnd(EnemyData data)
     {
-        _playerHealth = Mathf.Max(_playerHealth - data.EnemyDamage, 0);
-        OnLivesChanged?.Invoke(_playerHealth);
+        _currentHealth = Mathf.Max(_currentHealth - data.EnemyDamage, 0);
+        OnHealthChanged?.Invoke(_currentHealth);
+
+        if (_currentHealth <= 0)
+            HandleGameOver();
+    }
+
+    /// <summary>
+    /// Called when player health reaches zero.
+    /// Placeholder — add scene transition, UI trigger, or analytics here.
+    /// </summary>
+    private void HandleGameOver()
+    {
+        Debug.Log("[GameManager] Game over — health reached zero.");
     }
 }

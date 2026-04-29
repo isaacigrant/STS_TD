@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Rat_EnemyData
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   EnemyDamage: 1
-  EnemyHealth: 2
-  EnemySpeed: 3
+  EnemyHealth: 3
+  EnemySpeed: 5

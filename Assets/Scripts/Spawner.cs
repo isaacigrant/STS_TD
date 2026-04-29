@@ -2,11 +2,20 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Manages the spawning of enemies across rounds and waves.
+/// Reads from <see cref="RoundData"/>/<see cref="WaveData"/> ScriptableObjects and pulls enemies from <see cref="ObjectPooler"/> pools.
+/// Fires <see cref="OnRoundChanged"/> whenever the round index advances so UI can react.
+/// </summary>
 public class Spawner : MonoBehaviour
 {
+    /// <summary>
+    /// Fired when the round index changes. Passes the new round index as an int.
+    /// </summary>
     public static event Action<int> OnRoundChanged;
 
     [Header("Rounds")]
+    [Tooltip("Ordered array of RoundData assets that define the full level.")]
     [SerializeField] private RoundData[] _rounds;
 
     [Header("Pools")]
@@ -14,21 +23,21 @@ public class Spawner : MonoBehaviour
     [SerializeField] private ObjectPooler _ratPool;
     [SerializeField] private ObjectPooler _oozePool;
 
-    private Dictionary<EnemyType, ObjectPooler> _enemyToPoolDictionary;
-    private RoundData _currentRoundData => _rounds[_currentRoundIndex];
-    private WaveData _currentWaveData => _currentRoundData.Waves[_currentWaveIndex];
-    private float _spawnTimer = 0;
-    private float _waveCooldown;
-    private int _currentRoundIndex = 0;
-    private int _currentWaveIndex = 0;
-    private int _enemyDestroyedCounter = 0;
-    private int _enemySpawnCounter = 0;
+    private Dictionary<EnemyType, ObjectPooler> _poolByEnemyType;
+    private RoundData CurrentRound => _rounds[_currentRoundIndex];
+    private WaveData CurrentWave => CurrentRound.Waves[_currentWaveIndex];
     private bool _isBetweenRounds = true;
     private bool _isBetweenWaves = true;
+    private float _spawnTimer = 0f;
+    private float _waveCooldown = 0f;
+    private int _currentRoundIndex = 0;
+    private int _currentWaveIndex = 0;
+    private int _enemiesDestroyedThisWave = 0;
+    private int _enemiesSpawnedThisWave = 0;
 
     private void Awake()
     {
-        _enemyToPoolDictionary = new Dictionary<EnemyType, ObjectPooler>()
+        _poolByEnemyType = new Dictionary<EnemyType, ObjectPooler>()
         {
             { EnemyType.Slime, _slimePool },
             { EnemyType.Rat, _ratPool },
@@ -38,16 +47,16 @@ public class Spawner : MonoBehaviour
 
     private void OnEnable()
     {
-        Enemy.OnEnemyReachedEnd += HandleOnEnemyReachedEnd;
-        Enemy.OnEnemyDestroyed += HandleOnEnemyDestroyed;
-        LevelUI.OnRoundStarted += HandleOnRoundStarted;
+        Enemy.OnEnemyDestroyed += HandleEnemyDestroyed;
+        Enemy.OnEnemyReachedEnd += HandleEnemyReachedEnd;
+        LevelUI.OnRoundStarted += HandleRoundStarted;
     }
 
     private void OnDisable()
     {
-        Enemy.OnEnemyReachedEnd -= HandleOnEnemyReachedEnd;
-        Enemy.OnEnemyDestroyed -= HandleOnEnemyDestroyed;
-        LevelUI.OnRoundStarted -= HandleOnRoundStarted;
+        Enemy.OnEnemyDestroyed -= HandleEnemyDestroyed;
+        Enemy.OnEnemyReachedEnd -= HandleEnemyReachedEnd;
+        LevelUI.OnRoundStarted -= HandleRoundStarted;
     }
 
     private void Start()
@@ -57,12 +66,12 @@ public class Spawner : MonoBehaviour
 
     private void Update()
     {
-        WaveLogic();
+        TickWaveLogic();
     }
 
     /// <summary>
-    /// <para>Sets the state to transition between rounds and waves, increments the round index, 
-    /// and enables the start round button if there are remaining rounds in the level.</para>
+    /// Advances to the next round and re-enables the start button.
+    /// Does nothing further if all rounds are complete.
     /// </summary>
     private void AdvanceRound()
     {
@@ -78,37 +87,45 @@ public class Spawner : MonoBehaviour
     }
 
     /// <summary>
-    /// <para>Increments the wave index, resets spawn and destruction counters, and checks current wave index to <see cref="AdvanceRound"/> or if more waves remain in the current round.</para>
+    /// Advances to the next wave, resetting per-wave counters.
+    /// Calls AdvanceRound instead if this was the last wave.
     /// </summary>
     private void AdvanceWave()
     {
         _currentWaveIndex++;
-        _enemySpawnCounter = 0;
-        _enemyDestroyedCounter = 0;
+        _enemiesSpawnedThisWave = 0;
+        _enemiesDestroyedThisWave = 0;
         _spawnTimer = 0;
         _isBetweenWaves = false;
 
-        if (_currentWaveIndex > _currentRoundData.Waves.Length - 1)
+        if (_currentWaveIndex > CurrentRound.Waves.Length - 1)
             AdvanceRound();
     }
 
-    private void HandleOnEnemyDestroyed(Enemy enemy)
+    /// <summary>
+    /// Called when an enemy is destroyed mid-wave (e.g. killed by player).
+    /// </summary>
+    /// <param name="enemy">Enemy that was destroyed.</param>
+    private void HandleEnemyDestroyed(Enemy enemy)
     {
-        _enemyDestroyedCounter++;
+        _enemiesDestroyedThisWave++;
     }
 
     /// <summary>
-    /// <para>Increases enemy destroyed counter when any enemy reaches the end.</para>
+    /// Called when an enemy reaches the end of the path without being destroyed.
+    /// Still counts as removed from the wave so progression can continue.
     /// </summary>
-    private void HandleOnEnemyReachedEnd(EnemyData data)
+    /// /// <param name="data">Enemy that reached the end.</param>
+    private void HandleEnemyReachedEnd(EnemyData data)
     {
-        _enemyDestroyedCounter++;
+        _enemiesDestroyedThisWave++;
     }
 
     /// <summary>
-    /// <para>Sets isBetweenRounds and isBetweenWaves to false. Resets current wave index and turns off Next Round button.</para>
+    /// Called by LevelUI when the player presses the Start Round button.
+    /// Resets wave index and unpauses spawning.
     /// </summary>
-    private void HandleOnRoundStarted()
+    private void HandleRoundStarted()
     {
         _isBetweenRounds = false;
         _isBetweenWaves = false;
@@ -117,68 +134,74 @@ public class Spawner : MonoBehaviour
     }
 
     /// <summary>
-    /// <para>Manages enemy spawning based on timing and wave population. Triggers object spawning at defined intervals 
-    /// or sets the transition state and cooldown once all enemies in the current wave are destroyed.</para>
-    /// <see cref="SpawnObject"/>
+    /// Pulls an enemy of the current wave's type from the appropriate pool,
+    /// positions it at the spawner's location, and activates it.
+    /// <para><seealso cref="ObjectPooler.GetPooledObject"/></para>
     /// </summary>
-    private void SpawnLogic()
+    private void SpawnEnemy()
     {
-        _spawnTimer -= Time.deltaTime;
-
-        if (_spawnTimer <= 0 && _enemySpawnCounter < _currentWaveData.EnemiesPerWave)
+        if (_poolByEnemyType.TryGetValue(CurrentWave.EnemyWaveType, out ObjectPooler pool))
         {
-            _spawnTimer = _currentWaveData.SpawnInterval;
-            SpawnObject();
+            GameObject spawnedEnemy = pool.GetPooledObject();
+            spawnedEnemy.transform.position = transform.position;
+            spawnedEnemy.SetActive(true);
+            _enemiesSpawnedThisWave++;
         }
-        else if (_enemySpawnCounter >= _currentWaveData.EnemiesPerWave && _enemyDestroyedCounter >= _currentWaveData.EnemiesPerWave)
+        else
+        {
+            Debug.LogWarning($"[Spawner] No pool found for EnemyType: {CurrentWave.EnemyWaveType}", this);
+        }
+    }
+
+    /// <summary>
+    /// Handles per-frame spawn timing during an active wave.
+    /// Spawns an enemy when the timer expires, or signals wave end once
+    /// all spawned enemies have been destroyed.
+    /// </summary>
+    private void TickSpawnLogic()
+    {
+        if (_enemiesSpawnedThisWave >= CurrentWave.EnemiesPerWave && _enemiesDestroyedThisWave >= CurrentWave.EnemiesPerWave)
         {
             _isBetweenWaves = true;
-            _waveCooldown = _currentWaveData.TimeUntilNextWave;
+            _waveCooldown = CurrentWave.TimeUntilNextWave;
+            return;
         }
-    }
 
-    /// <summary>
-    /// <para>Attempts to retrieve an object pool based on the current wave's enemy type. If successful, 
-    /// retrieves an object from the pool, positions it at the spawner, activates it, and increments the spawn counter.</para>
-    /// <see cref="ObjectPooler.GetObjectInPool"/>
-    /// </summary>
-    private void SpawnObject()
-    {
-        if (_enemyToPoolDictionary.TryGetValue(_currentWaveData.EnemyWaveType, out var pool))
+        if (_enemiesSpawnedThisWave < CurrentWave.EnemiesPerWave)
         {
-            GameObject spawnedObject = pool.GetObjectInPool();
-            spawnedObject.transform.position = transform.position;
-            spawnedObject.SetActive(true);
-            _enemySpawnCounter++;
+            _spawnTimer -= Time.deltaTime;
+
+            if (_spawnTimer <= 0)
+            {
+                _spawnTimer = CurrentWave.SpawnInterval;
+                SpawnEnemy();
+            }
         }
     }
 
     /// <summary>
-    /// <para>Determines the current wave state, exits early if between rounds, otherwise processes either 
-    /// the <see cref="WaveCooldown"/> or the active <see cref="SpawnLogic"/> based on the current transition status.</para>
+    /// Counts down the cooldown period between waves, then advances to the next wave.
     /// </summary>
-    private void WaveLogic()
+    private void TickWaveCooldown()
+    {
+        _waveCooldown -= Time.deltaTime;
+
+        if (_waveCooldown <= 0)
+            AdvanceWave();
+    }
+
+    /// <summary>
+    /// Top-level update tick. Exits early between rounds, otherwise runs the
+    /// cooldown timer or the spawn logic depending on current wave state.
+    /// </summary>
+    private void TickWaveLogic()
     {
         if (_isBetweenRounds)
             return;
 
         if (_isBetweenWaves)
-            WaveCooldown();
+            TickWaveCooldown();
         else
-            SpawnLogic();
-    }
-
-    /// <summary>
-    /// <para>Decrements the wave cooldown timer by the elapsed frame time and calls <see cref="AdvanceWave"/> 
-    /// once the timer reaches zero.</para>
-    /// </summary>
-    private void WaveCooldown()
-    {
-        _waveCooldown -= Time.deltaTime;
-
-        if (_waveCooldown > 0)
-            return;
-
-        AdvanceWave();
+            TickSpawnLogic();
     }
 }
